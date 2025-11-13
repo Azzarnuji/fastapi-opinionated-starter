@@ -408,102 +408,115 @@ Here's an end-to-end flow diagram showing how the FastAPI Opinionated framework 
 
 ```mermaid
 graph TB
-    subgraph "Development Phase"
-        Dev[Developer]
-        CLI[fastapi-opinionated CLI]
-        GenDomain[Generate Domain Structure<br/>--bootstrap]
-        GenController[Generate Controller<br/>--crud]
-        AddCode[Add custom business logic]
-        
-        Dev --> CLI
-        CLI --> GenDomain
-        CLI --> GenController
-        GenDomain --> AddCode
-        GenController --> AddCode
-    end
-    
-    subgraph "Project Structure"
-        AppDir[app/]
-        DomainsDir[domains/]
-        ClassBased[class-based/]
-        FuncBased[functional-based/]
-        DomainDir[domain-name/]
-        CtrlDir[controllers/]
-        ServDir[services/]
-        QueueDir[queues/]
-        
-        AppDir --> DomainsDir
-        DomainsDir --> ClassBased
-        DomainsDir --> FuncBased
-        DomainsDir --> DomainDir
-        ClassBased --> CtrlDir
-        ClassBased --> ServDir
-        ClassBased --> QueueDir
-    end
-    
-    subgraph "Controller Examples"
-        ClassCtrl[Class-based Controller<br/>@Controller, @Get, @Post...]
-        FuncCtrl[Functional Controller<br/>@Get, @Post decorators]
-        
-        CtrlDir --> ClassCtrl
-        CtrlDir --> FuncCtrl
-    end
-    
-    subgraph "Application Startup"
-        Main[main.py App.create()]
-        Discovery[Auto-discovery engine]
-        ImportMod[Import modules from app/domains/]
-        FindDecor[Find decorated functions/classes]
-        RegRoutes[Register routes with FastAPI]
-        
-        Main --> Discovery
-        Discovery --> ImportMod
-        ImportMod --> FindDecor
-        FindDecor --> RegRoutes
-    end
-    
-    subgraph "Runtime Request Flow"
-        HTTPReq[HTTP Request]
-        FastAPIRouter[FastAPI Router]
-        RouteMatch[Match to controller method]
-        Execute[Execute method]
-        Response[Return Response]
-        
-        HTTPReq --> FastAPIRouter
-        FastAPIRouter --> RouteMatch
-        RouteMatch --> Execute
-        Execute --> Response
-    end
-    
-    subgraph "Service Integration"
-        Service[Service Layer]
-        BusinessLogic[Business Logic]
-        Service --> BusinessLogic
-        Execute --> Service
-    end
-    
-    subgraph "Queue Processing"
-        Queue[Queue System]
-        BGTask[Background Tasks]
-        Queue --> BGTask
-    end
-    
-    Dev -.-> GenDomain
-    GenDomain -.-> DomainDir
-    GenController -.-> ClassCtrl
-    GenController -.-> FuncCtrl
-    AddCode -.-> ClassCtrl
-    AddCode -.-> FuncCtrl
-    DomainDir -.-> CtrlDir
-    Main -.-> Discovery
-    ImportMod -.-> ClassCtrl
-    ImportMod -.-> FuncCtrl
-    FindDecor -.-> RegRoutes
-    RegRoutes -.-> FastAPIRouter
-    RouteMatch -.-> ClassCtrl
-    RouteMatch -.-> FuncCtrl
-    Execute -.-> Service
-    Execute -.-> Queue
+
+%% =========================
+%% PROJECT STRUCTURE
+%% =========================
+subgraph ProjectStructure["📁 Project Structure"]
+    APP["app/ (core)"]
+    DOMAINS["domains/ (domain modules)"]
+    CLASS["class-based/"]
+    FUNC["functional-based/"]
+    SHARED["shared/ (utilities)"]
+    MAIN["main.py (entrypoint)"]
+
+    APP --> DOMAINS
+    APP --> SHARED
+    APP --> MAIN
+    DOMAINS --> CLASS
+    DOMAINS --> FUNC
+end
+
+
+%% =========================
+%% CLASS-BASED CONTROLLERS
+%% =========================
+subgraph ClassControllers["🏷️ Class-Based Controllers"]
+    ClassCtrl["Controller Class<br/>@Controller, @Get, @Post, ..."]
+    ClassService["Service Layer"]
+
+    CLASS --> ClassCtrl
+    CLASS --> ClassService
+end
+
+
+%% =========================
+%% FUNCTIONAL CONTROLLERS
+%% =========================
+subgraph FunctionalControllers["⚙️ Functional-Based Controllers"]
+    FuncCtrl["Functional Endpoints<br/>@Get, @Post, ..."]
+    FuncService["Service Layer"]
+
+    FUNC --> FuncCtrl
+    FUNC --> FuncService
+end
+
+
+%% =========================
+%% AUTO DISCOVERY ENGINE
+%% =========================
+subgraph AutoDiscovery["🔍 Automatic Controller Discovery"]
+    Start["main.py App.create()"]
+    Scan["Scan app/domains"]
+    Import["Import modules"]
+    Detect["Detect decorated controllers/routes"]
+    Register["Register routes to FastAPI"]
+
+    Start --> Scan
+    Scan --> Import
+    Import --> Detect
+    Detect --> Register
+end
+
+
+%% =========================
+%% REQUEST FLOW
+%% =========================
+subgraph RequestFlow["🌐 Runtime Request Flow"]
+    Req["HTTP Request"]
+    Router["FastAPI Router"]
+    Match["Match Controller Method"]
+    Execute["Execute Handler"]
+    Resp["HTTP Response"]
+
+    Req --> Router
+    Router --> Match
+    Match --> Execute
+    Execute --> Resp
+end
+
+
+%% =========================
+%% SERVICE INTEGRATION
+%% =========================
+subgraph ServiceIntegration["🧠 Business Logic Integration"]
+    SvcLayer["Service Layer"]
+    BizLogic["Business Logic"]
+
+    Execute --> SvcLayer
+    SvcLayer --> BizLogic
+end
+
+
+%% =========================
+%% CLI SYSTEM
+%% =========================
+subgraph CLI["🛠️ CLI Generator"]
+    CLIcmd["fastapi-opinionated CLI"]
+    NewDomain["new domain --bootstrap"]
+    NewController["new controller --crud"]
+    GenFolders["Generate domain folder structure"]
+    GenCtrl["Generate controller (class/func)"]
+
+    CLIcmd --> NewDomain
+    CLIcmd --> NewController
+    NewDomain --> GenFolders
+    NewController --> GenCtrl
+    GenFolders --> DOMAINS
+    GenCtrl --> ClassCtrl
+    GenCtrl --> FuncCtrl
+end
+
 ```
 
 ## License
