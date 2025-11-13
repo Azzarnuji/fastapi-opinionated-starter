@@ -402,6 +402,110 @@ For production deployment, use Uvicorn:
 uvicorn main:app --host 0.0.0.0 --port 8003
 ```
 
+## Architecture Flow Diagram
+
+Here's an end-to-end flow diagram showing how the FastAPI Opinionated framework works:
+
+```mermaid
+graph TB
+    subgraph "Development Phase"
+        Dev[Developer]
+        CLI[fastapi-opinionated CLI]
+        GenDomain[Generate Domain Structure<br/>--bootstrap]
+        GenController[Generate Controller<br/>--crud]
+        AddCode[Add custom business logic]
+        
+        Dev --> CLI
+        CLI --> GenDomain
+        CLI --> GenController
+        GenDomain --> AddCode
+        GenController --> AddCode
+    end
+    
+    subgraph "Project Structure"
+        AppDir[app/]
+        DomainsDir[domains/]
+        ClassBased[class-based/]
+        FuncBased[functional-based/]
+        DomainDir[domain-name/]
+        CtrlDir[controllers/]
+        ServDir[services/]
+        QueueDir[queues/]
+        
+        AppDir --> DomainsDir
+        DomainsDir --> ClassBased
+        DomainsDir --> FuncBased
+        DomainsDir --> DomainDir
+        ClassBased --> CtrlDir
+        ClassBased --> ServDir
+        ClassBased --> QueueDir
+    end
+    
+    subgraph "Controller Examples"
+        ClassCtrl[Class-based Controller<br/>@Controller, @Get, @Post...]
+        FuncCtrl[Functional Controller<br/>@Get, @Post decorators]
+        
+        CtrlDir --> ClassCtrl
+        CtrlDir --> FuncCtrl
+    end
+    
+    subgraph "Application Startup"
+        Main[main.py App.create()]
+        Discovery[Auto-discovery engine]
+        ImportMod[Import modules from app/domains/]
+        FindDecor[Find decorated functions/classes]
+        RegRoutes[Register routes with FastAPI]
+        
+        Main --> Discovery
+        Discovery --> ImportMod
+        ImportMod --> FindDecor
+        FindDecor --> RegRoutes
+    end
+    
+    subgraph "Runtime Request Flow"
+        HTTPReq[HTTP Request]
+        FastAPIRouter[FastAPI Router]
+        RouteMatch[Match to controller method]
+        Execute[Execute method]
+        Response[Return Response]
+        
+        HTTPReq --> FastAPIRouter
+        FastAPIRouter --> RouteMatch
+        RouteMatch --> Execute
+        Execute --> Response
+    end
+    
+    subgraph "Service Integration"
+        Service[Service Layer]
+        BusinessLogic[Business Logic]
+        Service --> BusinessLogic
+        Execute --> Service
+    end
+    
+    subgraph "Queue Processing"
+        Queue[Queue System]
+        BGTask[Background Tasks]
+        Queue --> BGTask
+    end
+    
+    Dev -.-> GenDomain
+    GenDomain -.-> DomainDir
+    GenController -.-> ClassCtrl
+    GenController -.-> FuncCtrl
+    AddCode -.-> ClassCtrl
+    AddCode -.-> FuncCtrl
+    DomainDir -.-> CtrlDir
+    Main -.-> Discovery
+    ImportMod -.-> ClassCtrl
+    ImportMod -.-> FuncCtrl
+    FindDecor -.-> RegRoutes
+    RegRoutes -.-> FastAPIRouter
+    RouteMatch -.-> ClassCtrl
+    RouteMatch -.-> FuncCtrl
+    Execute -.-> Service
+    Execute -.-> Queue
+```
+
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
