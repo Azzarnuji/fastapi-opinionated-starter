@@ -1,7 +1,7 @@
 from fastapi_opinionated.decorators.routing import Controller, Get, Post, Put, Patch, Delete
 
 
-@Controller("/users", group="USERS")
+@Controller("/users", group="CLASSBASED-USERS")
 class UsersController:
 
     @Get("/")
