@@ -232,6 +232,23 @@ type = "directory"
 url = "../fastapi-opinionated-core"
 
 [[package]]
+name = "fastapi-opinionated-eventbus"
+version = "0.1.0"
+description = ""
+optional = false
+python-versions = ">=3.12"
+groups = ["main"]
+files = []
+develop = true
+
+[package.dependencies]
+fastapi-opinionated-core = {path = "/home/zarnuji/project/my-framework/fastapi-opinionated-core"}
+
+[package.source]
+type = "directory"
+url = "../fastapi-opinionated-eventbus"
+
+[[package]]
 name = "fastapi-opinionated-socket"
 version = "0.1.0"
 description = ""
@@ -1803,4 +1820,4 @@ h11 = ">=0.16.0,<1"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12"
-content-hash = "910a0d600dd49df397c556918f0bc6d2acb686282d17a9cca4af9bdcf7aeff4a"
+content-hash = "7bf2f1e21547301d4e743d08387fcc6404d9e2c55705206c086302c99c1afe53"
