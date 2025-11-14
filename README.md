@@ -1,15 +1,17 @@
 # FastAPI Opinionated Starter
 
-A structured and opinionated FastAPI framework that provides automatic controller discovery and decorator-based routing for building well-organized web applications.
+A structured and opinionated FastAPI framework that provides automatic controller discovery, decorator-based routing, plugin system, and CLI tools for building well-organized web applications.
 
 ## Features
 
-- **Decorator-based Routing**: Use `@Controller`, `@Get`, `@Post`, `@Put`, `@Patch`, `@Delete` decorators to define routes
+- **Decorator-based Routing**: Use `@Controller`, `@Get`, `@Post`, `@Put`, `@Patch`, `@Delete`, `@Options`, `@Head`, `@Http` decorators to define routes
 - **Automatic Controller Discovery**: Controllers in `app/domains` are automatically loaded
 - **Clean Architecture**: Domain-based separation of concerns with support for class-based and functional-based approaches
-- **Custom Logging**: Colored logging with timing information
+- **Custom Logging**: Enhanced logging with file and line tracking
 - **FastAPI Integration**: Full compatibility with FastAPI features
 - **Flexible Controller Patterns**: Supports both class-based and functional-based controller definitions
+- **Plugin System**: Extend functionality with Socket.IO and EventBus plugins
+- **Built-in CLI Tools**: Generate domains and controllers with `fastapi-opinionated` command
 
 ## Project Structure
 
@@ -110,6 +112,49 @@ async def create_user(user: dict):
     return {"id": 3, **user}
 ```
 
+### Using the EventBus Plugin
+
+The starter includes examples of EventBus usage in the functional controllers:
+
+```python
+from fastapi_opinionated.decorators.routing import Get
+from fastapi_opinionated_eventbus import OnInternalEvent, eventbus_api
+from fastapi_opinionated.shared.logger import logger
+
+@Get("/users", group="USERS")
+async def list_users():
+    users = [{"id": 1, "name": "Alice"}, {"id": 2, "name": "Bob"}]
+    # Emit an event to the event bus
+    await eventbus_api().emit("user.retrieved", user_id=1)
+    return users
+
+@OnInternalEvent("user.retrieved")
+async def handle_user_retrieved_event(user_id: int):
+    logger.info(f"User retrieved event handled for user_id: {user_id}")
+```
+
+### Using the Socket.IO Plugin
+
+The starter includes examples of Socket.IO usage:
+
+```python
+from fastapi_opinionated.decorators.routing import Get
+from fastapi_opinionated_socket import SocketEvent, socket_api
+
+@Get("/emit_socket_event", group="SOCKET")
+async def emit_socket_event():
+    # Emit an event to connected Socket.IO clients
+    await socket_api().emit("custom_event", {"data": "Hello from FastAPI!"})
+
+@SocketEvent("connect", namespace="/test")
+async def handle_connect(sid, environ):
+    logger.info(f"Socket.IO client {sid} connected to /test namespace")
+
+@SocketEvent("disconnect", namespace="/test")
+async def handle_disconnect(sid):
+    logger.info(f"Socket.IO client {sid} disconnected from /test namespace")
+```
+
 ### Available Decorators
 
 #### Class-Based Controller Decorators:
@@ -119,6 +164,9 @@ async def create_user(user: dict):
 - `@Put(path, group=None)`: Defines a PUT route
 - `@Patch(path, group=None)`: Defines a PATCH route
 - `@Delete(path, group=None)`: Defines a DELETE route
+- `@Options(path, group=None)`: Defines an OPTIONS route
+- `@Head(path, group=None)`: Defines a HEAD route
+- `@Http(method, path, group=None)`: Defines custom HTTP methods
 
 #### Functional-Based Decorators:
 - `@Get(path, group=None)`: Defines a GET route
@@ -126,6 +174,9 @@ async def create_user(user: dict):
 - `@Put(path, group=None)`: Defines a PUT route
 - `@Patch(path, group=None)`: Defines a PATCH route
 - `@Delete(path, group=None)`: Defines a DELETE route
+- `@Options(path, group=None)`: Defines an OPTIONS route
+- `@Head(path, group=None)`: Defines a HEAD route
+- `@Http(method, path, group=None)`: Defines custom HTTP methods
 
 The `group` parameter is optional and allows you to categorize your routes in the OpenAPI documentation.
 
@@ -149,6 +200,38 @@ async def lifespan(app: FastAPI):
         print(f"Lifespan error: {e}")
 ```
 
+### Plugin System
+
+The framework supports plugins for extending functionality. The starter template includes both Socket.IO and EventBus plugins pre-configured:
+
+```python
+from fastapi_opinionated import App
+from fastapi_opinionated_socket.plugin import SocketPlugin
+from fastapi_opinionated_eventbus.plugin import EventBusPlugin
+from fastapi.middleware.cors import CORSMiddleware
+
+app = App.create(title="My App")
+
+# Add CORS middleware for Socket.IO support
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Enable plugins with configuration:
+App.enable(
+    SocketPlugin(),
+    async_mode="asgi",
+    cors_allowed_origins=[],
+    ping_interval=3,
+    ping_timeout=60,
+    socketio_path="socket",
+)
+App.enable(EventBusPlugin())
+```
+
 ## Configuration
 
 The project uses the fastapi-opinionated-core library which provides:
@@ -156,6 +239,8 @@ The project uses the fastapi-opinionated-core library which provides:
 - Custom logging system
 - Convention-based controller loading
 - Support for both class-based and functional-based controllers
+- Plugin system for extensibility
+- Built-in CLI tools for scaffolding
 
 ## Architecture
 
@@ -253,7 +338,7 @@ async def send_welcome_email(user_id: int):
 
 ### API Documentation
 
-The application automatically generates OpenAPI documentation with Swagger UI and ReDoc. 
+The application automatically generates OpenAPI documentation with Swagger UI and ReDoc.
 After starting the application, visit:
 - Swagger UI: `http://localhost:8003/docs`
 - ReDoc: `http://localhost:8003/redoc`
@@ -355,7 +440,7 @@ class {DomainName}Controller:
     @Put("/update")
     async def update(self):
         return {"message": "{DomainName}Controller updated successfully"}
-        
+
     @Patch("/partial_update")
     async def partial_update(self):
         return {"message": "{DomainName}Controller updated successfully"}
@@ -391,8 +476,24 @@ When you run the application, you'll see log messages confirming that the new co
 
 - **Speed**: Quickly scaffold new domains and controllers with proper structure
 - **Consistency**: Ensures all components follow the same architectural patterns
-- **Conventions**: Automatically applies proper naming and decorator conventions  
+- **Conventions**: Automatically applies proper naming and decorator conventions
 - **Zero Configuration**: New components are automatically discovered and registered without manual configuration
+
+## Plugin Extensions
+
+The framework supports optional extensions:
+
+### Socket.IO Plugin
+For real-time bidirectional communication:
+```bash
+poetry add fastapi-opinionated-socket
+```
+
+### EventBus Plugin
+For internal event-driven communication:
+```bash
+poetry add fastapi-opinionated-eventbus
+```
 
 ## Deployment
 
@@ -517,6 +618,16 @@ subgraph CLI["🛠️ CLI Generator"]
     GenCtrl --> FuncCtrl
 end
 
+%% =========================
+%% PLUGIN SYSTEM
+%% =========================
+subgraph Plugins["🔌 Plugin System"]
+    Socket["Socket.IO Plugin"]
+    EventBus["EventBus Plugin"]
+
+    APP --> Socket
+    APP --> EventBus
+end
 ```
 
 ## License
