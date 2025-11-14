@@ -1,7 +1,6 @@
-from fastapi_opinionated.app import App
-from fastapi_opinionated.decorators.routing import Controller, Get, Post
-from socketio import AsyncServer
-from fastapi_opinionated_socket.helpers import socket_api
+from fastapi_opinionated.decorators.routing import Get, Post
+from fastapi_opinionated_socket.helpers import SocketEvent, socket_api
+from fastapi_opinionated.shared.logger import logger
 
 
 @Get("/users", group="FUNCTIONALBASED-USERS")
@@ -15,3 +14,7 @@ async def create_user(user: dict):
 @Get("/emit_socket_event", group="FUNCTIONALBASED-USERS")
 async def emit_socket_event():
     await socket_api().emit("custom_event", {"data": "Hello from FastAPI!"})
+    
+@SocketEvent("functional_based_event", namespace="/test")
+async def functional_based_event_handler(sid, data):
+    logger.info(f"Functional-based controller received: {data}")
