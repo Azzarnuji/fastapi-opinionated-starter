@@ -3,7 +3,7 @@ from fastapi_opinionated_socket.helpers import SocketEvent
 from fastapi_opinionated.shared.logger import logger
 
 
-@Controller("/users", group="CLASSBASED-USERS")
+@Controller("/users-class-based", group="CLASSBASED-USERS")
 class UsersController:
 
     @Get("/")

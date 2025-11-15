@@ -18,6 +18,10 @@ async def handle_user_retrieved_event(user_id: int):
 async def create_user(user: dict):
     return {"id": 3, **user}
 
+@Get("/users", group="FUNCTIONALBASED-USERS")
+async def create_user(user: dict):
+    return {"id": 3, **user}
+
 @Get("/emit_socket_event", group="FUNCTIONALBASED-USERS")
 async def emit_socket_event():
     await socket_api().emit("custom_event", {"data": "Hello from FastAPI!"})

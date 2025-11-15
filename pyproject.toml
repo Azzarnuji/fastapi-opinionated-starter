@@ -10,7 +10,7 @@ requires-python = ">=3.12"
 dependencies = [
     "fastapi-opinionated-core @ file:///home/zarnuji/project/my-framework/fastapi-opinionated-core",
     "fastapi-opinionated-socket @ file:///home/zarnuji/project/my-framework/fastapi-opinionated-socket",
-    "fastapi-opinionated-eventbus @ file:///home/zarnuji/project/my-framework/fastapi-opinionated-eventbus"
+    "fastapi-opinionated-eventbus @ file:///home/zarnuji/project/my-framework/fastapi-opinionated-eventbus",
 ]
 
 
