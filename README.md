@@ -678,11 +678,15 @@ subgraph CLI["🛠️ CLI Generator"]
     CLIcmd["fastapi-opinionated CLI"]
     NewDomain["new domain --bootstrap"]
     NewController["new controller --crud"]
+    ListCmd["list routes/plugins"]
+    PluginsCmd["plugins enable/disable/list"]
     GenFolders["Generate domain folder structure"]
     GenCtrl["Generate controller (class/func)"]
 
     CLIcmd --> NewDomain
     CLIcmd --> NewController
+    CLIcmd --> ListCmd
+    CLIcmd --> PluginsCmd
     NewDomain --> GenFolders
     NewController --> GenCtrl
     GenFolders --> DOMAINS
