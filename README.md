@@ -2,16 +2,22 @@
 
 A structured and opinionated FastAPI framework that provides automatic controller discovery, decorator-based routing, plugin system, and CLI tools for building well-organized web applications.
 
+## Overview
+
+FastAPI Opinionated Starter is a complete application template built on top of the FastAPI Opinionated Core framework. It provides a well-structured, domain-driven architecture with automatic controller discovery, decorator-based routing, and integrated plugin support for Socket.IO and EventBus functionality.
+
 ## Features
 
 - **Decorator-based Routing**: Use `@Controller`, `@Get`, `@Post`, `@Put`, `@Patch`, `@Delete`, `@Options`, `@Head`, `@Http` decorators to define routes
-- **Automatic Controller Discovery**: Controllers in `app/domains` are automatically loaded
+- **Automatic Controller Discovery**: Controllers in `app/domains` are automatically loaded and registered
 - **Clean Architecture**: Domain-based separation of concerns with support for class-based and functional-based approaches
-- **Custom Logging**: Enhanced logging with file and line tracking
-- **FastAPI Integration**: Full compatibility with FastAPI features
+- **Enhanced Logging**: Comprehensive logging with color coding, file tracking, and performance deltas
+- **FastAPI Integration**: Full compatibility with FastAPI features including automatic OpenAPI documentation
 - **Flexible Controller Patterns**: Supports both class-based and functional-based controller definitions
 - **Plugin System**: Extend functionality with Socket.IO and EventBus plugins
 - **Built-in CLI Tools**: Generate domains and controllers with `fastapi-opinionated` command
+- **Duplicate Route Detection**: Automatic detection and prevention of conflicting routes
+- **Opinionated Project Structure**: Consistent, well-organized folder structure for scalable applications
 
 ## Project Structure
 
@@ -22,15 +28,19 @@ fastapi-opinionated-starter/
 │   ├── domains/                 # Domain-specific modules
 │   │   ├── class-based/         # Class-based approach
 │   │   │   ├── controllers/     # Controller classes with decorator-based routing
-│   │   │   ├── services/        # Business logic services
+│   │   │   ├── services/        # Business logic services  
 │   │   │   └── queues/          # Background job queues
 │   │   └── functional-based/    # Functional-based approach
 │   │       ├── controllers/     # Functional controller endpoints
 │   │       ├── services/        # Business logic services
 │   │       └── queues/          # Background job queues
-│   └── shared/                  # Shared utilities
+│   └── shared/                  # Shared utilities and helpers
 ├── main.py                     # Application entry point
-└── pyproject.toml              # Project dependencies
+├── pyproject.toml              # Project dependencies and configuration
+├── poetry.lock                 # Locked dependency versions
+├── .fastapi_opinionated/       # Plugin configuration files
+│   └── enabled_plugins.py
+└── README.md                   # Project documentation
 ```
 
 ## Getting Started
@@ -221,7 +231,7 @@ app.add_middleware(
 )
 
 # Enable plugins with configuration:
-App.enable(
+App.configurePlugin(
     SocketPlugin(),
     async_mode="asgi",
     cors_allowed_origins=[],
@@ -229,27 +239,32 @@ App.enable(
     ping_timeout=60,
     socketio_path="socket",
 )
-App.enable(EventBusPlugin())
+
+App.configurePlugin(EventBusPlugin())
+
+app = App.create()
 ```
 
 ## Configuration
 
 The project uses the fastapi-opinionated-core library which provides:
 - Automatic route registration
-- Custom logging system
-- Convention-based controller loading
+- Custom logging system with enhanced features
+- Convention-based controller loading from `app/domains`
 - Support for both class-based and functional-based controllers
 - Plugin system for extensibility
 - Built-in CLI tools for scaffolding
+- Duplicate route detection and prevention
+- Comprehensive error handling and logging
 
 ## Architecture
 
 This project follows a domain-driven design with clear separation of concerns:
 
-- **Controllers**: Handle HTTP requests and responses
-- **Services**: Contain business logic
-- **Queues**: Handle background jobs and tasks
-- **Domains**: Group related functionality by business domain
+- **Controllers**: Handle HTTP requests and responses, validate inputs, and coordinate with services
+- **Services**: Contain business logic and interact with data sources
+- **Queues**: Handle background jobs and asynchronous tasks
+- **Domains**: Group related functionality by business domain for better maintainability
 
 ### Creating New Domains
 
@@ -312,7 +327,7 @@ class UsersController:
         return {"users": users}
 ```
 
-### Queues [HOLD]
+### Queues
 
 Background tasks can be defined in the `queues` directory:
 
@@ -332,9 +347,11 @@ async def send_welcome_email(user_id: int):
 
 1. **Domain Separation**: Group related functionality by domain (e.g., user, auth, product)
 2. **Controller Responsibilities**: Controllers should handle HTTP concerns only, delegate business logic to services
-3. **Service Layer**: Business logic should reside in service classes
+3. **Service Layer**: Business logic should reside in service classes, not in controllers
 4. **Consistent Naming**: Follow consistent naming conventions for routes and controller methods
 5. **Error Handling**: Implement proper error handling in your services and controllers
+6. **Logging**: Use the enhanced logging system for debugging and monitoring
+7. **Testing**: Write unit and integration tests for your services and controllers
 
 ### API Documentation
 
@@ -406,16 +423,12 @@ fastapi-opinionated new controller DOMAIN_NAME [OPTIONS]
 ```
 
 **Options:**
-- `--controller-name TEXT` - Specify controller filename (default: "controller")
 - `--crud` - Generate CRUD endpoints (list, create, update, delete)
 
 **Examples:**
 ```bash
 # Create a basic controller for the user domain
 fastapi-opinionated new controller user
-
-# Create a named controller
-fastapi-opinionated new controller user get_user
 
 # Create a controller with CRUD endpoints
 fastapi-opinionated new controller user --crud
@@ -450,6 +463,39 @@ class {DomainName}Controller:
         return {"message": "{DomainName}Controller deleted successfully"}
 ```
 
+#### `plugins` - Manage plugin installation and configuration
+
+```bash
+fastapi-opinionated plugins [list|enable|disable] plugin_path
+```
+
+**Examples:**
+```bash
+# List enabled plugins
+fastapi-opinionated plugins list
+
+# Enable a plugin
+fastapi-opinionated plugins enable fastapi_opinionated_socket.plugin.SocketPlugin
+
+# Disable a plugin
+fastapi-opinionated plugins disable fastapi_opinionated_socket.plugin.SocketPlugin
+```
+
+#### `list` - List routes and plugin handlers
+
+```bash
+fastapi-opinionated list [routes|plugins]
+```
+
+**Examples:**
+```bash
+# List all registered routes
+fastapi-opinionated list routes
+
+# List registered event handlers for a specific plugin
+fastapi-opinionated list plugins --plugin eventbus
+```
+
 ### CLI Integration
 
 The CLI-generated components integrate seamlessly with the FastAPI Opinionated Starter:
@@ -458,7 +504,7 @@ The CLI-generated components integrate seamlessly with the FastAPI Opinionated S
 2. **Consistent Architecture**: Generated code follows the same architectural patterns as the rest of the project
 3. **No Manual Configuration**: New domains and controllers are instantly available in your application without additional setup
 
-**Example Integration Test:**
+**Example Integration:**
 ```bash
 # Create a new domain with bootstrapped folders
 fastapi-opinionated new domain product --bootstrap
@@ -495,13 +541,39 @@ For internal event-driven communication:
 poetry add fastapi-opinionated-eventbus
 ```
 
-## Deployment
+### Plugin Configuration
 
-For production deployment, use Uvicorn:
+Plugins are configured using the `.fastapi_opinionated/enabled_plugins.py` file. You can enable/disable plugins using the CLI:
 
 ```bash
-uvicorn main:app --host 0.0.0.0 --port 8003
+# Enable a plugin
+fastapi-opinionated plugins enable fastapi_opinionated_socket.plugin.SocketPlugin
+
+# Disable a plugin
+fastapi-opinionated plugins disable fastapi_opinionated_socket.plugin.SocketPlugin
 ```
+
+## Deployment
+
+For production deployment:
+
+```bash
+# Using Uvicorn
+uvicorn main:app --host 0.0.0.0 --port 8003 --workers 4
+
+# Or using Gunicorn with Uvicorn workers
+gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8003
+```
+
+### Production Configuration
+
+For production environments, consider these settings:
+
+1. **CORS**: Set specific origins instead of ["*"]
+2. **Security**: Add security headers and authentication middleware
+3. **Logging**: Configure structured logging for monitoring
+4. **Health Checks**: Add health check endpoints
+5. **Monitoring**: Integrate with monitoring solutions
 
 ## Architecture Flow Diagram
 
@@ -629,6 +701,38 @@ subgraph Plugins["🔌 Plugin System"]
     APP --> EventBus
 end
 ```
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Import Errors**: Ensure all dependencies are installed with Poetry
+2. **Controller Not Found**: Verify controllers are in the correct `app/domains` subdirectory
+3. **Plugin Not Working**: Check that plugins are properly configured and enabled
+4. **Route Conflicts**: Use the duplicate route detection feature to identify conflicts
+5. **CORS Issues**: Configure proper CORS settings for your frontend domain
+
+### Debugging
+
+Enable detailed logging for debugging:
+
+```python
+from fastapi_opinionated.shared.logger import ns_logger
+logger = ns_logger("DebugComponent")
+logger.info("Debug message with context")
+```
+
+## Contributing
+
+Contributions are welcome! Please follow these steps:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes
+4. Add tests for your changes
+5. Commit your changes (`git commit -m 'Add some amazing feature'`)
+6. Push to the branch (`git push origin feature/amazing-feature`)
+7. Open a Pull Request
 
 ## License
 
