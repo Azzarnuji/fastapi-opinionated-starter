@@ -1,8 +1,4 @@
 from fastapi_opinionated.decorators.routing import Controller, Get, Post, Put, Patch, Delete
-from fastapi_opinionated_socket.helpers import SocketEvent
-from fastapi_opinionated.shared.logger import logger
-
-
 @Controller("/users-class-based", group="CLASSBASED-USERS")
 class UsersController:
 
@@ -25,9 +21,4 @@ class UsersController:
     @Delete("/delete")
     async def delete(self):
         return {"message": "UsersController deleted successfully"}
-    
-    @staticmethod
-    @SocketEvent("class_based_event", namespace="/test")
-    async def class_based_event_handler(sid, data):
-        logger.info(f"Class-based controller received: {data}")
 
