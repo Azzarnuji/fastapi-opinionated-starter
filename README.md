@@ -706,25 +706,6 @@ subgraph Plugins["🔌 Plugin System"]
 end
 ```
 
-## Troubleshooting
-
-### Common Issues
-
-1. **Import Errors**: Ensure all dependencies are installed with Poetry
-2. **Controller Not Found**: Verify controllers are in the correct `app/domains` subdirectory
-3. **Plugin Not Working**: Check that plugins are properly configured and enabled
-4. **Route Conflicts**: Use the duplicate route detection feature to identify conflicts
-5. **CORS Issues**: Configure proper CORS settings for your frontend domain
-
-### Debugging
-
-Enable detailed logging for debugging:
-
-```python
-from fastapi_opinionated.shared.logger import ns_logger
-logger = ns_logger("DebugComponent")
-logger.info("Debug message with context")
-```
 
 ## Contributing
 
