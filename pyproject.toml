@@ -8,9 +8,9 @@ authors = [
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "fastapi-opinionated-core @ file:///home/zarnuji/project/my-framework/fastapi-opinionated-core",
-    "fastapi-opinionated-socket @ file:///home/zarnuji/project/my-framework/fastapi-opinionated-socket",
-    "fastapi-opinionated-eventbus @ file:///home/zarnuji/project/my-framework/fastapi-opinionated-eventbus",
+    "fastapi-opinionated-core (>=0.1.2,<0.2.0)",
+    "fastapi-opinionated-socket (>=0.1.0,<0.2.0)",
+    "fastapi-opinionated-eventbus (>=0.1.1,<0.2.0)",
 ]
 
 
@@ -20,9 +20,6 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-fastapi-opinionated-core = {develop = true}
-fastapi-opinionated-socket = {develop = true}
-fastapi-opinionated-eventbus = {develop = true}
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

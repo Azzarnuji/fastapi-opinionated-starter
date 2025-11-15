@@ -5,7 +5,7 @@ from fastapi_opinionated.app import App
 from fastapi_opinionated_eventbus.plugin import EventBusPlugin
 from fastapi_opinionated_socket.plugin import SocketPlugin
 from fastapi.middleware.cors import CORSMiddleware
-# from fastapi_opinionated_eventbus.plugin import EventBusPlugin
+from fastapi_opinionated_eventbus.plugin import EventBusPlugin
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -34,7 +34,3 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# App.enable(
-#     EventBusPlugin()
-# )
