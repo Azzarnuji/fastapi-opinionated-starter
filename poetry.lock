@@ -210,14 +210,16 @@ optional = false
 python-versions = ">=3.12"
 groups = ["main"]
 files = []
-develop = true
+develop = false
 
 [package.dependencies]
 fastapi = {version = ">=0.121.1,<0.122.0", extras = ["all"]}
 
 [package.source]
-type = "directory"
-url = "../fastapi-opinionated-core"
+type = "git"
+url = "https://github.com/Azzarnuji/fastapi-opinionated-core.git"
+reference = "HEAD"
+resolved_reference = "8112d38bde6f3103213c482b5feb9f4f9d1ddd42"
 
 [[package]]
 name = "fastar"
@@ -1849,4 +1851,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12"
-content-hash = "4f901155a449dbd00b2f2467e10f7239ee7ec357abdb2dc324ff927ec2667112"
+content-hash = "f4d77864380e637603dee9659fb44171b72e90a1afcf157423db9d3a3057d571"
